@@ -8,14 +8,14 @@ namespace PitchData_Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InternationalTrophyController : ControllerBase
+    public class ClubTrophiesController : ControllerBase
     {
-        private readonly IInternationalTrophyService _internationalTrophyService;
-        private readonly ILogger<InternationalTrophyController> _logger;
+        private readonly IClubTrophyService _clubTrophyService;
+        private readonly ILogger<ClubTrophiesController> _logger;
 
-        public InternationalTrophyController(IInternationalTrophyService internationalTrophyService, ILogger<InternationalTrophyController> logger)
+        public ClubTrophiesController(IClubTrophyService clubTrophyService, ILogger<ClubTrophiesController> logger)
         {
-            _internationalTrophyService = internationalTrophyService ?? throw new ArgumentNullException(nameof(internationalTrophyService));
+            _clubTrophyService = clubTrophyService ?? throw new ArgumentNullException(nameof(clubTrophyService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -28,17 +28,17 @@ namespace PitchData_Api.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<InternationalTrophyDto>>> GetAllInternationalTrophysWithNationalTeam()
+        public async Task<ActionResult<IEnumerable<ClubTrophyDto>>> GetClubTrophies()
         {
             try
             {
-                _logger.LogInformation("Getting international trophies with national teams: ");
-                var result = await _internationalTrophyService.GetAllInternationalTrophysWithNationalTeamAsync();
+                _logger.LogInformation("Getting club trophies: ");
+                var result = await _clubTrophyService.GetClubTrophiesWithClubTeamAsync();
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while getting coaches");
+                _logger.LogError(ex, "Error occurred while getting trophies");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
             }
         }
@@ -55,38 +55,38 @@ namespace PitchData_Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<InternationalTrophyDto>> GetAllInternationalTrophysWithNationalTeamAsync(int id)
+        public async Task<ActionResult<ClubTrophyDto>> GetClubTrophies(int id)
         {
             try
             {
-                _logger.LogInformation("Getting internationa trophy: ", id);
+                _logger.LogInformation("Getting national team: ", id);
 
-                var trophy = await _internationalTrophyService.GetAllInternationalTrophysWithNationalTeamAsync(id);
+                var clubtrophy = await _clubTrophyService.GetClubTrophiesWithClubTeamAsync(id);
 
-                if (trophy == null)
+                if (clubtrophy == null)
                 {
-                    return NotFound($"Trophy ID {id} not found");
+                    return NotFound($"National team ID {id} not found");
                 }
 
-                return Ok(trophy);
+                return Ok(clubtrophy);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while getting trophy: ", id);
+                _logger.LogError(ex, "Error occurred while retrieving team : ", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
             }
         }
-        [HttpPost("add-internationalTrophy")]
-        public async Task<IActionResult> AddInternationalTrophy([FromBody] AddInternationalTrophyRequest request)
+        [HttpPost("add-clubTrophy")]
+        public async Task<IActionResult> AddCoach([FromBody] AddClubTrophyRequest request)
         {
-            var result = await _internationalTrophyService.AddInternationalTrophyAsync(request);
+            var result = await _clubTrophyService.AddClubTrophyAsync(request);
 
-            if(!result.Success)
+            if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);
             }
 
-            return Ok("International trophy added successfully");
+            return Ok("Trophy added successfully");
         }
     }
 }
